@@ -3,6 +3,8 @@ import bodyParser from "body-parser";
 
 const app = express();
 
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.get("/", (req, res) => {
 	res.send(`<div>
         <form method="POST">
@@ -13,7 +15,7 @@ app.get("/", (req, res) => {
         </form>
         </div>`);
 });
-app.post("/", bodyParser.urlencoded({ extended: true }), (req, res) => {
+app.post("/", (req, res) => {
 	console.log(req.body);
 	res.send("Account Created");
 });

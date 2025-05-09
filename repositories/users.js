@@ -1,4 +1,5 @@
 import fs from "fs";
+import crypto from "crypto";
 import { stringify } from "querystring";
 import { json } from "stream/consumers";
 
@@ -27,9 +28,15 @@ class UsersRepository {
 
 	async createUser(attrs) {
 		const records = await this.getAll();
+		attrs.id = this.randomId();
 		records.push(attrs);
 		this.writeAll(records);
 	}
+
+	randomId() {
+		return crypto.randomBytes(4).toString("hex");
+	}
+
 	async writeAll(records) {
 		await fs.promises.writeFile(
 			this.filename,
@@ -40,7 +47,10 @@ class UsersRepository {
 const test = async () => {
 	const repo = new UsersRepository("users.json");
 	const users = await repo.getAll();
-	const newUser = await repo.createUser("yousef");
+	const newUser = await repo.createUser({
+		email: "nothing@nothing.com",
+		password: "nothing",
+	});
 	console.log(users);
 };
 

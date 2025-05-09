@@ -37,6 +37,14 @@ class UsersRepository {
 		return crypto.randomBytes(4).toString("hex");
 	}
 
+	async getOne(id) {
+		const records = await this.getAll();
+		for (let record of records) {
+			if (record.id == id) {
+				return record;
+			}
+		}
+	}
 	async writeAll(records) {
 		await fs.promises.writeFile(
 			this.filename,
@@ -46,12 +54,9 @@ class UsersRepository {
 }
 const test = async () => {
 	const repo = new UsersRepository("users.json");
-	const users = await repo.getAll();
-	const newUser = await repo.createUser({
-		email: "nothing@nothing.com",
-		password: "nothing",
-	});
-	console.log(users);
+	const user = await repo.getOne("423bcec2");
+
+	console.log(user);
 };
 
 test();

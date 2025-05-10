@@ -78,4 +78,4 @@ class UsersRepository {
 	}
 }
 
-module.exports = new UsersRepository("users.json");
+export default new UsersRepository("users.json");

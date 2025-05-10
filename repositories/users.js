@@ -4,10 +4,10 @@ import crypto from "crypto";
 class UsersRepository {
 	constructor(filename) {
 		if (!filename) {
-			throw new Error("Creating repository require filename");
+			throw new Error("Creating a repository requires a filename");
 		}
-		this.filename = filename;
 
+		this.filename = filename;
 		try {
 			fs.accessSync(this.filename);
 		} catch (err) {
@@ -16,45 +16,16 @@ class UsersRepository {
 	}
 
 	async getAll() {
-		// Open the file
-		return JSON.parse(
-			await fs.promises.readFile(this.filename, {
-				encoding: "utf8",
-			})
-		);
+		return JSON.parse(await fs.readFileSync(this.filename, "utf8"));
 	}
 
-	async createUser(attrs) {
-		const records = await this.getAll();
+	async create(attrs) {
 		attrs.id = this.randomId();
+
+		const records = await this.getAll();
 		records.push(attrs);
-		this.writeAll(records);
-		return records;
-	}
 
-	randomId() {
-		return crypto.randomBytes(4).toString("hex");
-	}
-
-	async deleteById(id) {
-		const records = await this.getAll();
-		const filteredRecords = [];
-		for (let record of records) {
-			if (record.id !== id) {
-				filteredRecords.push(record);
-			}
-		}
-		this.writeAll(filteredRecords);
-		return filteredRecords;
-	}
-
-	async getOne(id) {
-		const records = await this.getAll();
-		for (let record of records) {
-			if (record.id == id) {
-				return record;
-			}
-		}
+		await this.writeAll(records);
 	}
 
 	async writeAll(records) {
@@ -63,16 +34,40 @@ class UsersRepository {
 			JSON.stringify(records, null, 2)
 		);
 	}
+
+	randomId() {
+		return crypto.randomBytes(4).toString("hex");
+	}
+
+	async getOne(id) {
+		const records = await this.getAll();
+		return records.find((record) => record.id === id);
+	}
+
+	async delete(id) {
+		const records = await this.getAll();
+		const filteredRecords = records.filter((record) => record.id !== id);
+		await this.writeAll(filteredRecords);
+	}
+
+	async update(id, attrs) {
+		const records = await this.getAll();
+		const record = records.find((record) => record.id === id);
+
+		if (!record) {
+			throw new Error(`Record with id ${id} not found`);
+		}
+
+		Object.assign(record, attrs);
+		await this.writeAll(records);
+	}
 }
+
 const test = async () => {
 	const repo = new UsersRepository("users.json");
-	// const users = await repo.createUser({
-	// 	email: "nothing@nothing.com",
-	// 	password: "nothing",
-	// });
-	const deleted = await repo.deleteById("49c5a2c9");
-
-	console.log(deleted);
+	await repo.create({ email: "nothing@nothing.com", password: "nothing" });
+	await repo.update("51f07ca2", { password: "mypassword" });
+	await repo.delete("51f07ca2");
 };
 
 test();

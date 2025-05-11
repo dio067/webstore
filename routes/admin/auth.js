@@ -1,17 +1,12 @@
 import express from "express";
 import usersRepo from "../../repositories/users.js";
+import signupTemplate from "../../view/admin/signup.js";
+import signinTemplate from "../../view/admin/signin.js";
 
 const router = express();
 
 router.get("/signup", (req, res) => {
-	res.send(`<div>
-        <form method="POST">
-        <input name="email" placeholder="email">
-        <input name="password" placeholder="password">
-        <input name="passwordConfirmation" placeholder="password confirmation">
-        <button type="submit" >Sign Up</button>
-        </form>
-        </div>`);
+	res.send(signupTemplate());
 });
 router.post("/signup", async (req, res) => {
 	const { email, password, passwordConfirmation } = req.body;
@@ -38,13 +33,7 @@ router.get("/signout", (req, res) => {
 });
 
 router.get("/signin", (req, res) => {
-	res.send(`<div>
-        <form method="POST">
-        <input name="email" placeholder="email">
-        <input name="password" placeholder="password">
-        <button type="submit" >Sign In</button>
-        </form>
-        </div>`);
+	res.send(signinTemplate());
 });
 
 router.post("/signin", async (req, res) => {

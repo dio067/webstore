@@ -57,16 +57,20 @@ app.get("/signin", (req, res) => {
 app.post("/signin", async (req, res) => {
 	const { email, password } = req.body;
 
-	const user = await usersRepo.getOneBy({ email, password });
+	const user = await usersRepo.getOneBy({ email });
+	const passwordComparsion = await usersRepo.comparePasswords(
+		user.password,
+		password
+	);
 
 	if (!user) {
-		res.send("User not found");
+		return res.send("User not found");
 	}
 
-	if (user.password != password) {
-		res.send("Invaild Password");
+	if (!passwordComparsion) {
+		return res.send("Invaild Password");
 	}
-	res.send("Your signed in");
+	res.send("Your signed In");
 });
 app;
 app.listen(4000, () => {

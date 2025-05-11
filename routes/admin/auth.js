@@ -8,7 +8,7 @@ import validtors from "./validtors.js";
 const router = express();
 
 router.get("/signup", (req, res) => {
-	res.send(signupTemplate());
+	res.send(signupTemplate({ req }));
 });
 router.post(
 	"/signup",
@@ -17,11 +17,12 @@ router.post(
 		validtors.requirePassword,
 		validtors.requirePasswordConfirmation,
 	],
-
 	async (req, res) => {
-		const error = validationResult(req);
+		const errors = validationResult(req);
 
-		console.log(error);
+		if (!errors.isEmpty()) {
+			return res.send(signupTemplate({ req, errors }));
+		}
 		const { email, password, passwordConfirmation } = req.body;
 
 		// Create a user in the users repo
@@ -40,25 +41,22 @@ router.get("/signout", (req, res) => {
 });
 
 router.get("/signin", (req, res) => {
-	res.send(signinTemplate());
+	res.send(signinTemplate({ req }));
 });
 
-router.post("/signin", async (req, res) => {
-	const { email, password } = req.body;
+router.post(
+	"/signin",
+	[validtors.requireEmailExist, validtors.requirePasswordValid],
+	async (req, res) => {
+		const { email, password } = req.body;
+		const errors = validationResult(req);
 
-	const user = await usersRepo.getOneBy({ email });
-	const passwordComparsion = await usersRepo.comparePasswords(
-		user.password,
-		password
-	);
+		console.log(errors);
 
-	if (!user) {
-		return res.send("User not found");
+		if (!errors.isEmpty()) {
+			return res.send(signinTemplate({ req, errors }));
+		}
+		res.send("Your signed In");
 	}
-
-	if (!passwordComparsion) {
-		return res.send("Invaild Password");
-	}
-	res.send("Your signed In");
-});
+);
 export default router;

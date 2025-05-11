@@ -3,9 +3,7 @@ import { check, validationResult } from "express-validator";
 import usersRepo from "../../repositories/users.js";
 import signupTemplate from "../../view/admin/signup.js";
 import signinTemplate from "../../view/admin/signin.js";
-import { requireEmail } from "./validtors.js";
-import { requirePassword } from "./validtors.js";
-import { requirePasswordConfirmation } from "./validtors.js";
+import validtors from "./validtors.js";
 
 const router = express();
 
@@ -14,7 +12,11 @@ router.get("/signup", (req, res) => {
 });
 router.post(
 	"/signup",
-	[requireEmail, requirePassword, requirePasswordConfirmation],
+	[
+		validtors.requireEmail,
+		validtors.requirePassword,
+		validtors.requirePasswordConfirmation,
+	],
 
 	async (req, res) => {
 		const error = validationResult(req);

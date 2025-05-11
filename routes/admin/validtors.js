@@ -1,7 +1,7 @@
 import { check } from "express-validator";
 import usersRepo from "../../repositories/users.js";
 
-export default {
+const validtors = {
 	requireEmail: check("email")
 		.trim()
 		.normalizeEmail()
@@ -27,3 +27,5 @@ export default {
 			}
 		}),
 };
+
+export default validtors;

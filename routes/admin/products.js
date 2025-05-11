@@ -1,4 +1,6 @@
 import express from "express";
+import productsRepo from "../../repositories/products.js";
+
 const router = express.Router();
 
 router.get("admin/products", (req, res) => {});

@@ -17,6 +17,22 @@ router.post("/cart/products", async (req, res) => {
 		cart = await cartsRepo.getOne(req.session.cartId);
 	}
 
+	// Whether add new to a cart or increment the quantity
+	const exisistingItem = cart.items.find(
+		(item) => item.id === req.body.productId
+	);
+	if (exisistingItem) {
+		// Increment
+		exisistingItem.quantity++;
+	} else {
+		// Add new Item
+		cart.items.push({ id: req.body.productId, quantity: 1 });
+	}
+
+	await cartsRepo.update(cart.id, {
+		items: cart.items,
+	});
+
 	res.send("Product added");
 });
 

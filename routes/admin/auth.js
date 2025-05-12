@@ -34,10 +34,7 @@ router.post(
 
 router.get("/signout", (req, res) => {
 	req.session = null;
-});
-
-router.post("/signout", (req, res) => {
-	res.redirect("/signin");
+	return res.send("Your logged out");
 });
 
 router.get("/signin", (req, res) => {
@@ -49,7 +46,12 @@ router.post(
 	[validtors.requireEmailExist, validtors.requirePasswordValid],
 	middlewares.handleErrors(signinTemplate),
 	async (req, res) => {
-		const { email, password } = req.body;
+		const { email } = req.body;
+
+		const user = await usersRepo.getOneBy({ email });
+
+		req.session.userId = user.id;
+
 		res.redirect("/admin/products");
 	}
 );

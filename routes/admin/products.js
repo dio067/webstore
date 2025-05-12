@@ -10,17 +10,18 @@ import productsIndexTemplate from "../../view/admin/products/index.js";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.get("/admin/products", async (req, res) => {
+router.get("/admin/products", middlewares.requireAuth, async (req, res) => {
 	const products = await productsRepo.getAll();
 	res.send(productsIndexTemplate({ products }));
 });
 
-router.get("/admin/products/new", (req, res) => {
+router.get("/admin/products/new", middlewares.requireAuth, (req, res) => {
 	res.send(productsNewTemplate({}));
 });
+
 router.post(
 	"/admin/products/new",
-	upload.single("image"),
+	middlewares.requireAuth,
 	[validtors.requireTitle, validtors.requirePrice],
 	middlewares.handleErrors(productsNewTemplate),
 	async (req, res) => {

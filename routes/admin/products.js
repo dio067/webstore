@@ -24,7 +24,10 @@ router.post(
 	"/admin/products/new",
 	middlewares.requireAuth,
 	[validtors.requireTitle, validtors.requirePrice],
-	middlewares.handleErrors(productsNewTemplate),
+	middlewares.handleErrors(productsNewTemplate, async (req) => {
+		const product = await productsRepo.getOne(req.params.id);
+		return { product };
+	}),
 	async (req, res) => {
 		const image = req.file.buffer.toString("base64");
 
@@ -55,7 +58,10 @@ router.post(
 	middlewares.requireAuth,
 	upload.single("image"),
 	[validtors.requireTitle, validtors.requirePrice],
-	middlewares.handleErrors(productsEditTemplate),
+	middlewares.handleErrors(productsEditTemplate, async (req) => {
+		const product = await productsRepo.getOne(req.params.id);
+		return { product };
+	}),
 	async (req, res) => {
 		const changes = req.body;
 
@@ -71,4 +77,10 @@ router.post(
 		res.redirect("/admin/products/");
 	}
 );
+
+router.post("/admin/products/:id/delete", async (req, res) => {
+	await productsRepo.delete(req.params.id);
+
+	res.redirect("/admin/products");
+});
 export default router;

@@ -2,6 +2,15 @@ import { check } from "express-validator";
 import usersRepo from "../../repositories/users.js";
 
 const validtors = {
+	requireTitle: check("title")
+		.trim()
+		.isLength({ min: 5, max: 40 })
+		.withMessage("Must be between 5 charcters and 40"),
+	requirePrice: check("price")
+		.trim()
+		.toFloat()
+		.isFloat({ min: 1 })
+		.withMessage("Must be a valid number"),
 	requireEmail: check("email")
 		.trim()
 		.normalizeEmail()
@@ -24,6 +33,33 @@ const validtors = {
 		.custom(async (passwordConfirmation, { req }) => {
 			if (req.body.password !== passwordConfirmation) {
 				throw new Error("Passwords must match");
+			}
+		}),
+	requireEmailExist: check("email")
+		.trim()
+		.normalizeEmail()
+		.isEmail()
+		.withMessage("Email not found")
+		.custom(async (email) => {
+			const user = await usersRepo.getOneBy({ email });
+			if (!user) {
+				throw new Error("Email not Found");
+			}
+		}),
+	requirePasswordValid: check("password")
+		.trim()
+		.custom(async (password, { req }) => {
+			const user = await usersRepo.getOneBy({ email: req.body.email });
+			if (!user) {
+				throw new Error("Invalid password");
+			}
+
+			const validPassword = await usersRepo.comparePasswords(
+				user.password,
+				password
+			);
+			if (!validPassword) {
+				throw new Error("Invalid password");
 			}
 		}),
 };

@@ -73,10 +73,15 @@ export default class Repository {
 
 	async create(attrs) {
 		attrs.id = this.randomId();
-		const records = this.getAll();
-		records.push(attrs);
+
+		const records = await this.getAll();
+		const record = {
+			...attrs,
+		};
+		records.push(record);
+
 		await this.writeAll(records);
 
-		return attrs;
+		return record;
 	}
 }
